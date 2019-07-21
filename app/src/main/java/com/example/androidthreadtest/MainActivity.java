@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager localBroadcastManager;
 
+    // Message Handler of main thread
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
+        // register for receiving EventBus
         EventBus.getDefault().register(this);
     }
 
@@ -101,12 +103,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         changeTextIntentService.setOnClickListener(this);
         changeTextEventBus.setOnClickListener(this);
 
+        // To show the thread id
         Log.d("Future Tasks", "Thread Number: " + Thread.currentThread().getId());
+        // To show the reference of TextView
         Log.d("Future Tasks", "TextView Object Reference: " + text);
     }
 
     @Override
     public void onStop() {
+        // Unregister EventBus to avoid Android OOM (out-of-memory)
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
@@ -114,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            // to show the result of operating UI in other thread;
             case R.id.crash_button: {
                 new Thread(new Runnable() {
                     @Override
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }).start();
                 break;
             }
+            // to show the implementation of runnable interface
             case R.id.change_text_runnable: {
                 new Thread(new Runnable() {
                     @Override
@@ -142,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }).start();
                 break;
             }
+            // to show the implementation of extending Thread class
             case R.id.change_text_threads: {
                 new Thread() {
                     @Override
@@ -159,15 +167,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }.start();
                 break;
             }
+            // to show the implementation of future task
             case R.id.change_text_future_task: {
                 ExecutorService executor = new ScheduledThreadPoolExecutor(2);
+                // Implement Callable for futureTask, detail explained in Tutorial slides
                 future = new FutureTask<String>(new Callable<String>() {
                     @Override
                     public String call() throws Exception {
                         Thread.sleep(2000);
                         return "Receive the message from other threads by FutureTask!";
                     }
-                }) {
+                })
+                //  Called when the worker thread finish their work (from isDone() of Future Class)
+                {
                     @Override
                     protected void done() {
                         String textContent = null;
@@ -187,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 executor.execute(future);
                 break;
             }
+            // to show the implementation of asyncTask
             case R.id.change_text_asynctask: {
                 new AsyncTask<Integer, Integer, String>() {
                     @Override
@@ -215,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }.execute(10);
                 break;
             }
+            // to show the implementation of handler thread
             case R.id.change_text_handler_thread: {
                 exampleHandlerThread = new HandlerThread("example");
                 exampleHandlerThread.start();
@@ -243,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }).sendMessage(msg);
                 break;
             }
+            // to show the implementation of intentService
             case R.id.change_text_intent_service: {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ExampleIntentService.ACTION_EXAMPLE_END);
@@ -259,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ExampleIntentService.startExample(this);
                 break;
             }
+            // to show the example of communication between threads and activity by EventBus
             case R.id.change_text_event_bus:{
                 new Thread() {
                     @Override
@@ -278,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // The method to process when receiving MessageEvent
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         text.setText(event.message);

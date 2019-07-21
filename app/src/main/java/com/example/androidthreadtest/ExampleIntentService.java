@@ -22,6 +22,7 @@ public class ExampleIntentService extends IntentService {
         context.startService(intent);
     }
 
+    // Called when receiving Intent from other components
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -32,12 +33,15 @@ public class ExampleIntentService extends IntentService {
         }
     }
 
+    // the method to process the intent contains action of ACTION_EXAMPLE_START
     private void handleActionExample() {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //Communicate by broadcasting Intent
         Intent intent = new Intent();
         intent.setAction(ACTION_EXAMPLE_END);
         intent.putExtra(RESULT_PARAM, "Receive the message from other threads by IntentService!");
