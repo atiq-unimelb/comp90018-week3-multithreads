@@ -3,6 +3,7 @@ package com.example.androidthreadtest;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.support.v4.content.LocalBroadcastManager;
 
 
 public class ExampleIntentService extends IntentService {
@@ -40,7 +41,7 @@ public class ExampleIntentService extends IntentService {
         Intent intent = new Intent();
         intent.setAction(ACTION_EXAMPLE_END);
         intent.putExtra(RESULT_PARAM, "Receive the message from other threads by IntentService!");
-        sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
 }

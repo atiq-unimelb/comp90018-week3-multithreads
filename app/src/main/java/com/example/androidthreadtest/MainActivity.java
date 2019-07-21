@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FutureTask<String> future;
     private HandlerThread exampleHandlerThread;
     private BroadcastReceiver broadcastReceiver;
+    private LocalBroadcastManager localBroadcastManager;
 
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -244,15 +246,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.change_text_intent_service: {
                 IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ExampleIntentService.ACTION_EXAMPLE_END);
+                localBroadcastManager = LocalBroadcastManager.getInstance(this);
                 broadcastReceiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         String message = intent.getStringExtra(ExampleIntentService.RESULT_PARAM);
                         text.setText(message);
-                        unregisterReceiver(broadcastReceiver);
+                        localBroadcastManager.unregisterReceiver(broadcastReceiver);
                     }
                 };
-                registerReceiver(broadcastReceiver, intentFilter);
+                localBroadcastManager.registerReceiver(broadcastReceiver, intentFilter);
                 ExampleIntentService.startExample(this);
                 break;
             }
